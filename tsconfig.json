@@ -23,7 +23,7 @@
 		"skipLibCheck": true,
 		"strict": true,
 		"target": "es6",
-		"outDir": "./dist",
-		"baseUrl": "./src",
-	},
+		"outDir": "./public",
+		"baseUrl": "./src"
+	}
 }

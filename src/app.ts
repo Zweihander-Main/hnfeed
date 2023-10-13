@@ -10,10 +10,11 @@ import yargs from 'yargs/yargs';
 const TIMESTAMP_HOUR = 10;
 const TIMESTAMP_MINUTE = 0;
 const HITS_LIMIT = 10000;
-const THROTTLE_TIME = 100;
+const THROTTLE_TIME = 500;
 
-const DIST_DIR = './dist';
+const DIST_DIR = './public';
 const RSS_PATH = './rss_feed.xml';
+const FEED_URL = 'https://example.com/rss.xml';
 
 interface AlgoliaSearchHit {
 	author: string;
@@ -221,7 +222,7 @@ const createRSSFeed = async (start?: number, end?: number) => {
 	const feed = new RSS({
 		title: 'Hacker News RSS Feed',
 		description: 'HN Items with Comments',
-		feed_url: 'https://example.com/rss.xml', // TODO
+		feed_url: FEED_URL,
 		site_url: 'https://news.ycombinator.com/',
 	});
 	for (const hit of processedData) {
