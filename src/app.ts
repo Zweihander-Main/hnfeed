@@ -5,16 +5,20 @@ import fs from 'fs';
 import path from 'path';
 import { Liquid } from 'liquidjs';
 import yargs from 'yargs/yargs';
-// import { CronJob } from 'node-cron';
+import express from 'express';
+import cron from 'node-cron';
 
 const TIMESTAMP_HOUR = 10;
 const TIMESTAMP_MINUTE = 0;
 const HITS_LIMIT = 10000;
 const THROTTLE_TIME = 500;
 
-const DIST_DIR = './public';
-const RSS_PATH = './rss_feed.xml';
-const FEED_URL = 'https://example.com/rss.xml';
+const DIST_DIR = 'public';
+const RSS_PATH = 'rss_feed.xml';
+const HOST_URL = 'https://example.com';
+const CRON_SCHEDULE = '30 8,20 * * *';
+const TIMEZONE = 'America/New_York';
+const PORT = 8080;
 
 interface AlgoliaSearchHit {
 	author: string;
@@ -222,7 +226,7 @@ const createRSSFeed = async (start?: number, end?: number) => {
 	const feed = new RSS({
 		title: 'Hacker News RSS Feed',
 		description: 'HN Items with Comments',
-		feed_url: FEED_URL,
+		feed_url: `${HOST_URL}/${RSS_PATH}}`,
 		site_url: 'https://news.ycombinator.com/',
 	});
 	for (const hit of processedData) {
@@ -255,16 +259,27 @@ void (async () => {
 		console.log('Creating RSS feed for custom dates');
 		await createRSSFeed(argv.start, argv.end);
 	} else {
-		console.log('Running cron job');
+		console.log('Setting up cron', CRON_SCHEDULE);
+		cron.schedule(
+			CRON_SCHEDULE,
+			() => {
+				console.log('Running cron job');
+				void createRSSFeed();
+			},
+			{
+				scheduled: true,
+				timezone: TIMEZONE,
+			}
+		);
+
+		const app = express();
+		app.get(`/${RSS_PATH}`, (_req, res) => {
+			res.sendFile(RSS_PATH, {
+				root: path.join(__dirname, '../', DIST_DIR),
+			});
+		});
+		app.listen(PORT, () => {
+			console.log(`Server is running on port ${PORT}`);
+		});
 	}
 })();
-
-// // Schedule the script to run twice a day (adjust the cron schedule as needed)
-// const job = new CronJob(
-// 	'0 0 * * *',
-// 	createRSSFeed,
-// 	null,
-// 	true,
-// 	'America/New_York'
-// );
-// job.start();
