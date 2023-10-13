@@ -4,6 +4,7 @@ import RSS from 'rss';
 import fs from 'fs';
 import path from 'path';
 import { Liquid } from 'liquidjs';
+import yargs from 'yargs/yargs';
 // import { CronJob } from 'node-cron';
 
 const TIMESTAMP_HOUR = 10;
@@ -13,7 +14,6 @@ const THROTTLE_TIME = 100;
 
 const DIST_DIR = './dist';
 const RSS_PATH = './rss_feed.xml';
-// TODO: allow custom dates
 
 interface AlgoliaSearchHit {
 	author: string;
@@ -88,8 +88,11 @@ const createTimeStampData = () => {
 	return returnData;
 };
 
-const createAlgoliaSearchUrl = () => {
-	const { t12HrAgo, t24HrAgo } = createTimeStampData();
+const createAlgoliaSearchUrl = (start?: number, end?: number) => {
+	const { t12HrAgo, t24HrAgo } =
+		start && end
+			? { t24HrAgo: start, t12HrAgo: end }
+			: createTimeStampData();
 	return `https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i%3E${t24HrAgo},created_at_i%3C${t12HrAgo},points%3E12&hitsPerPage=${HITS_LIMIT}`;
 };
 
@@ -99,9 +102,9 @@ const validateAlgoliaSearchResponse = (response: AlgoliaSearchResponse) => {
 	}
 };
 
-const fetchAlgoliaSearchData = async () => {
+const fetchAlgoliaSearchData = async (start?: number, end?: number) => {
 	try {
-		const url = createAlgoliaSearchUrl();
+		const url = createAlgoliaSearchUrl(start, end);
 		console.log('Fetching Algolia Search data', url);
 		const response = await axios.get<AlgoliaSearchResponse>(url, {
 			validateStatus: (status) => status < 500,
@@ -142,10 +145,7 @@ interface AllDataHit extends AlgoliaSearchHit {
 	c2L2?: HNApiResponse;
 }
 
-const fetchAllData = async () => {
-	const searchData = await fetchAlgoliaSearchData();
-	if (!searchData) return null;
-	const allData: Array<AllDataHit> = searchData.hits;
+const fetchCommentData = async (allData: Array<AllDataHit>) => {
 	for (let i = 0, len = allData.length; i < len; i++) {
 		const hit = allData[i];
 		const storyCommentsData = await fetchHNApiObjectData(hit.objectID);
@@ -212,10 +212,12 @@ const templateHit = async (hit: ProcessedDataHit) => {
 	return output;
 };
 
-const createRSSFeed = async () => {
-	const hnData = await fetchAllData();
-	if (!hnData) return;
-	const processedData = processData(hnData);
+const createRSSFeed = async (start?: number, end?: number) => {
+	const searchData = await fetchAlgoliaSearchData(start, end);
+	if (!searchData) return null;
+	const searchAndCommentData = await fetchCommentData(searchData.hits);
+	if (!searchAndCommentData) return;
+	const processedData = processData(searchAndCommentData);
 	const feed = new RSS({
 		title: 'Hacker News RSS Feed',
 		description: 'HN Items with Comments',
@@ -241,7 +243,20 @@ const createRSSFeed = async () => {
 	return;
 };
 
-void createRSSFeed();
+const yargsParser = yargs(process.argv.slice(2)).options({
+	start: { type: 'number', default: null, alias: 's' },
+	end: { type: 'number', default: null, alias: 'e' },
+});
+
+void (async () => {
+	const argv = await yargsParser.argv;
+	if (argv.start && argv.end) {
+		console.log('Creating RSS feed for custom dates');
+		await createRSSFeed();
+	} else {
+		console.log('Running cron job');
+	}
+})();
 
 // // Schedule the script to run twice a day (adjust the cron schedule as needed)
 // const job = new CronJob(
