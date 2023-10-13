@@ -80,10 +80,12 @@ const createTimeStampData = () => {
 		t24HrAgo.setHours(TIMESTAMP_HOUR + 12, TIMESTAMP_MINUTE, 0, 0);
 		t12HrAgo.setHours(TIMESTAMP_HOUR, TIMESTAMP_MINUTE, 0, 0);
 	}
-	return {
+	const returnData = {
 		t24HrAgo: t24HrAgo.getTime() / 1000,
 		t12HrAgo: t12HrAgo.getTime() / 1000,
 	};
+	console.log('Timestamp fetching for:', returnData);
+	return returnData;
 };
 
 const createAlgoliaSearchUrl = () => {
