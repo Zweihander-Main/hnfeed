@@ -20,6 +20,13 @@ const CRON_SCHEDULE = '30 8,20 * * *';
 const TIMEZONE = 'America/New_York';
 const PORT = 8080;
 
+const feedData = {
+	title: 'Hacker News RSS Feed',
+	description: 'HN Items with Comments',
+	feed_url: `${HOST_URL}/${RSS_PATH}}`,
+	site_url: 'https://news.ycombinator.com/',
+};
+
 interface AlgoliaSearchHit {
 	author: string;
 	children?: [number];
@@ -217,18 +224,20 @@ const templateHit = async (hit: ProcessedDataHit) => {
 	return output;
 };
 
+const writeFeedFile = (xml: string) => {
+	if (!fs.existsSync(DIST_DIR)) {
+		fs.mkdirSync(DIST_DIR, { recursive: true });
+	}
+	fs.writeFileSync(path.join(DIST_DIR, RSS_PATH), xml);
+};
+
 const createRSSFeed = async (start?: number, end?: number) => {
 	const searchData = await fetchAlgoliaSearchData(start, end);
 	if (!searchData) return null;
 	const searchAndCommentData = await fetchCommentData(searchData.hits);
 	if (!searchAndCommentData) return;
 	const processedData = processData(searchAndCommentData);
-	const feed = new RSS({
-		title: 'Hacker News RSS Feed',
-		description: 'HN Items with Comments',
-		feed_url: `${HOST_URL}/${RSS_PATH}}`,
-		site_url: 'https://news.ycombinator.com/',
-	});
+	const feed = new RSS(feedData);
 	for (const hit of processedData) {
 		const desc = await templateHit(hit);
 		feed.item({
@@ -241,10 +250,14 @@ const createRSSFeed = async (start?: number, end?: number) => {
 	}
 
 	const xml = feed.xml({ indent: true });
-	if (!fs.existsSync(DIST_DIR)) {
-		fs.mkdirSync(DIST_DIR, { recursive: true });
-	}
-	fs.writeFileSync(path.join(DIST_DIR, RSS_PATH), xml);
+	writeFeedFile(xml);
+	return;
+};
+
+const createDummyRSSFeed = () => {
+	const feed = new RSS(feedData);
+	const xml = feed.xml({ indent: true });
+	writeFeedFile(xml);
 	return;
 };
 
@@ -271,6 +284,10 @@ void (async () => {
 				timezone: TIMEZONE,
 			}
 		);
+
+		if (!fs.existsSync(path.join(DIST_DIR, RSS_PATH))) {
+			createDummyRSSFeed();
+		}
 
 		const app = express();
 		app.get(`/${RSS_PATH}`, (_req, res) => {
