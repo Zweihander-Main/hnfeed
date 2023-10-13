@@ -273,3 +273,6 @@ keys.json
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# public dir
+public
