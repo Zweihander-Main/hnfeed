@@ -1,7 +1,5 @@
 {
-	"cSpell.words": [
-		"Zweihänder"
-	],
+	"cSpell.words": ["Zweihänder", "liquidjs", "hnfeed", "arrowParens"],
 	"editor.formatOnSave": true,
 	"files.exclude": {
 		"**/node_modules": true
