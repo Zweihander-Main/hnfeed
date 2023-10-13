@@ -4,7 +4,9 @@
 		"liquidjs",
 		"hnfeed",
 		"arrowParens",
-		"healthcheck"
+		"healthcheck",
+		"zweizs",
+		"buildx"
 	],
 	"editor.formatOnSave": true,
 	"files.exclude": {
