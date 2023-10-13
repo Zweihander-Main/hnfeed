@@ -1,5 +1,11 @@
 {
-	"cSpell.words": ["Zweihänder", "liquidjs", "hnfeed", "arrowParens"],
+	"cSpell.words": [
+		"Zweihänder",
+		"liquidjs",
+		"hnfeed",
+		"arrowParens",
+		"healthcheck"
+	],
 	"editor.formatOnSave": true,
 	"files.exclude": {
 		"**/node_modules": true
