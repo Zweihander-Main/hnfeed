@@ -84,7 +84,7 @@ const createTimeStampData = () => {
 		t24HrAgo: t24HrAgo.getTime() / 1000,
 		t12HrAgo: t12HrAgo.getTime() / 1000,
 	};
-	console.log('Timestamp fetching for:', returnData);
+	console.log('Created timestamp for:', returnData);
 	return returnData;
 };
 
@@ -252,7 +252,7 @@ void (async () => {
 	const argv = await yargsParser.argv;
 	if (argv.start && argv.end) {
 		console.log('Creating RSS feed for custom dates');
-		await createRSSFeed();
+		await createRSSFeed(argv.start, argv.end);
 	} else {
 		console.log('Running cron job');
 	}
