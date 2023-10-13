@@ -1,0 +1,96 @@
+{
+	"name": "hnfeed",
+	"version": "0.0.1",
+	"description": "",
+	"main": "",
+	"scripts": {
+		"start": "ts-node src/app.ts"
+	},
+	"engines": {
+		"node": ">=16.0.0"
+	},
+	"author": "Zweihänder",
+	"license": "AGPL-3.0",
+	"dependencies": {
+		"axios": "^1.5.1",
+		"liquidjs": "^10.9.2",
+		"moment": "^2.29.4",
+		"rss": "^1.2.2",
+		"ts-node": "^10.9.1",
+		"tslib": "^2.6.2"
+	},
+	"devDependencies": {
+		"@types/node": "^20.8.5",
+		"@types/rss": "^0.0.30",
+		"@typescript-eslint/eslint-plugin": "^6.7.5",
+		"@typescript-eslint/parser": "^6.7.5",
+		"eslint": "^8.51.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-node": "^11.1.0",
+		"prettier": "^3.0.3"
+	},
+	"prettier": {
+		"singleQuote": true,
+		"trailingComma": "es5",
+		"tabWidth": 4,
+		"useTabs": true,
+		"arrowParens": "always"
+	},
+	"eslintConfig": {
+		"env": {
+			"browser": false,
+			"es6": true,
+			"node": true
+		},
+		"parser": "@typescript-eslint/parser",
+		"parserOptions": {
+			"project": "tsconfig.json",
+			"ecmaVersion": 2021
+		},
+		"plugins": [
+			"@typescript-eslint"
+		],
+		"extends": [
+			"eslint:recommended",
+			"plugin:@typescript-eslint/eslint-recommended",
+			"plugin:@typescript-eslint/recommended",
+			"plugin:@typescript-eslint/recommended-requiring-type-checking",
+			"plugin:node/recommended",
+			"prettier"
+		],
+		"rules": {
+			"quotes": [
+				"error",
+				"single"
+			],
+			"semi": [
+				"error",
+				"always"
+			],
+			"no-console": [
+				"error",
+				{
+					"allow": [
+						"warn",
+						"error",
+						"debug",
+						"log"
+					]
+				}
+			],
+			"no-mixed-spaces-and-tabs": [
+				"error",
+				"smart-tabs"
+			],
+			"node/no-unsupported-features/es-syntax": [
+				"error",
+				{
+					"ignores": [
+						"modules"
+					]
+				}
+			]
+		}
+	},
+	"eslintIgnore": []
+}
