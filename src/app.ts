@@ -227,7 +227,7 @@ const createRSSFeed = async (start?: number, end?: number) => {
 	for (const hit of processedData) {
 		const desc = await templateHit(hit);
 		feed.item({
-			title: hit.title,
+			title: `${hit.points}p | ${hit.title}`,
 			description: desc,
 			url: hit.url || '',
 			guid: hit.objectID,
