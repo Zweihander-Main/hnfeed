@@ -2,7 +2,9 @@
 
 _HN RSS feeds which include the top 4 comments_
 
-Twice a day, will pull in all HN stories submitted 12 to 24 hours ago. Will then sort those stories by points, add the top 4 comments, and output an RSS feed.
+Twice a day, will pull in all HN stories submitted 12 to 24 hours ago. Will then sort those stories by points, add the top 4 comments, and output an RSS feed at `./rss_feed.xml`.
+
+Available as a [Docker container](https://hub.docker.com/r/zweizs/hnfeed).
 
 **Current Status:** Very quickly adapted from an old script, use at your own caution
 
