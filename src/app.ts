@@ -7,6 +7,7 @@ import { Liquid } from 'liquidjs';
 import yargs from 'yargs/yargs';
 import express from 'express';
 import cron from 'node-cron';
+import { DateTime } from 'luxon';
 
 const TIMESTAMP_HOUR = 10;
 const TIMESTAMP_MINUTE = 0;
@@ -77,26 +78,48 @@ const liquidEngine = new Liquid({
 });
 
 const createTimeStampData = () => {
-	const currentTime = new Date();
-	const t24HrAgo = new Date();
-	const t12HrAgo = new Date();
-	if (currentTime.getHours() < 12) {
+	const currentTime = DateTime.now().setZone(TIMEZONE);
+	let t24HrAgo = currentTime.minus({ hours: 24 });
+	let t12HrAgo = currentTime.minus({ hours: 12 });
+	if (currentTime.hour < 12) {
 		// Before noon
-		t24HrAgo.setDate(t24HrAgo.getDate() - 1);
-		t24HrAgo.setHours(TIMESTAMP_HOUR, TIMESTAMP_MINUTE, 0, 0);
-		t12HrAgo.setDate(t12HrAgo.getDate() - 1);
-		t12HrAgo.setHours(TIMESTAMP_HOUR + 12, TIMESTAMP_MINUTE, 0, 0);
+		t24HrAgo = t24HrAgo.minus({ days: 1 }).set({
+			hour: TIMESTAMP_HOUR,
+			minute: TIMESTAMP_MINUTE,
+			second: 0,
+			millisecond: 0,
+		});
+		t12HrAgo = t12HrAgo.minus({ days: 1 }).set({
+			hour: TIMESTAMP_HOUR + 12,
+			minute: TIMESTAMP_MINUTE,
+			second: 0,
+			millisecond: 0,
+		});
 	} else {
-		// After noon
-		t24HrAgo.setDate(t24HrAgo.getDate() - 1);
-		t24HrAgo.setHours(TIMESTAMP_HOUR + 12, TIMESTAMP_MINUTE, 0, 0);
-		t12HrAgo.setHours(TIMESTAMP_HOUR, TIMESTAMP_MINUTE, 0, 0);
+		t24HrAgo = t24HrAgo.minus({ days: 1 }).set({
+			hour: TIMESTAMP_HOUR + 12,
+			minute: TIMESTAMP_MINUTE,
+			second: 0,
+			millisecond: 0,
+		});
+		t12HrAgo = t12HrAgo.set({
+			hour: TIMESTAMP_HOUR,
+			minute: TIMESTAMP_MINUTE,
+			second: 0,
+			millisecond: 0,
+		});
 	}
 	const returnData = {
-		t24HrAgo: t24HrAgo.getTime() / 1000,
-		t12HrAgo: t12HrAgo.getTime() / 1000,
+		t24HrAgo: t24HrAgo.toSeconds(),
+		t12HrAgo: t12HrAgo.toSeconds(),
 	};
 	console.log('Created timestamp for:', returnData);
+	console.log(
+		'Timestamp will be from',
+		t24HrAgo.toString(),
+		'to',
+		t12HrAgo.toString()
+	);
 	return returnData;
 };
 
@@ -251,6 +274,7 @@ const createRSSFeed = async (start?: number, end?: number) => {
 
 	const xml = feed.xml({ indent: true });
 	writeFeedFile(xml);
+	console.log('Created new RSS feed');
 	return;
 };
 
@@ -258,6 +282,7 @@ const createDummyRSSFeed = () => {
 	const feed = new RSS(feedData);
 	const xml = feed.xml({ indent: true });
 	writeFeedFile(xml);
+	console.log('Created dummy RSS feed');
 	return;
 };
 
