@@ -244,7 +244,7 @@ const processData = (data: Array<AllDataHit>) => {
 
 const templateHit = async (hit: ProcessedDataHit) => {
 	const output = (await liquidEngine.renderFile('rss', hit)) as string;
-	return output;
+	return output.replace(/[\n\t]/g, '');
 };
 
 const writeFeedFile = (xml: string) => {
