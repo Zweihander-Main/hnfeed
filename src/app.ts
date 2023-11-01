@@ -248,6 +248,7 @@ const templateHit = async (hit: ProcessedDataHit) => {
 };
 
 const writeFeedFile = (xml: string) => {
+	console.log('Writing RSS feed file, starts with:', xml.slice(0, 100));
 	if (!fs.existsSync(DIST_DIR)) {
 		fs.mkdirSync(DIST_DIR, { recursive: true });
 	}
@@ -302,7 +303,11 @@ void (async () => {
 			CRON_SCHEDULE,
 			() => {
 				console.log('Running cron job');
-				void createRSSFeed();
+				try {
+					void createRSSFeed();
+				} catch (error) {
+					console.error('Error running cron job:', error);
+				}
 			},
 			{
 				scheduled: true,
