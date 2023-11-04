@@ -267,7 +267,7 @@ const createRSSFeed = async (start?: number, end?: number) => {
 		feed.item({
 			title: `${hit.points}p | ${hit.title}`,
 			description: desc,
-			url: hit.url || '',
+			url: `https://news.ycombinator.com/item?id=${hit.objectID}`,
 			guid: hit.objectID,
 			date: hit.rssTime as string,
 		});
