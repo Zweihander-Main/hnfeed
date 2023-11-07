@@ -83,21 +83,20 @@ const createTimeStampData = () => {
 		second: 0,
 		millisecond: 0,
 	});
-	let t24HrAgo = currentTime.minus({ hours: 24 });
-	let t12HrAgo = currentTime.minus({ hours: 12 });
+	let t24HrAgo: DateTime, t12HrAgo: DateTime;
 	if (currentTime.hour < 12) {
 		// Before noon
-		t24HrAgo = t24HrAgo.minus({ days: 1 }).set({
+		t24HrAgo = currentTime.minus({ days: 1 }).set({
 			hour: TIMESTAMP_HOUR,
 		});
-		t12HrAgo = t12HrAgo.minus({ days: 1 }).set({
+		t12HrAgo = currentTime.minus({ days: 1 }).set({
 			hour: TIMESTAMP_HOUR + 12,
 		});
 	} else {
-		t24HrAgo = t24HrAgo.minus({ days: 1 }).set({
+		t24HrAgo = currentTime.minus({ days: 1 }).set({
 			hour: TIMESTAMP_HOUR + 12,
 		});
-		t12HrAgo = t12HrAgo.set({
+		t12HrAgo = currentTime.set({
 			hour: TIMESTAMP_HOUR,
 		});
 	}
