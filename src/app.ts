@@ -77,7 +77,7 @@ const liquidEngine = new Liquid({
 	greedy: true,
 });
 
-const createTimeStampData = () => {
+export const createTimeStampData = () => {
 	const currentTime = DateTime.now().setZone(TIMEZONE).set({
 		minute: TIMESTAMP_MINUTE,
 		second: 0,
