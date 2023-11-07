@@ -237,7 +237,7 @@ const yargsParser = yargs(process.argv.slice(2)).options({
 	end: { type: 'number', default: null, alias: 'e' },
 });
 
-void (async () => {
+(async () => {
 	const argv = await yargsParser.argv;
 	if (argv.start && argv.end) {
 		console.log('Creating RSS feed for custom dates');
@@ -274,4 +274,6 @@ void (async () => {
 			console.log(`Server is running on port ${PORT}`);
 		});
 	}
-})();
+})().catch((error) => {
+	console.error('Error running app:', error);
+});
