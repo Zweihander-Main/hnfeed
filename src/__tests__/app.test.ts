@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { createTimeStampData } from '../app.ts';
+import { createTimeStampData } from '../timestamps';
 
 test('createTimeStampData', () => {
 	const { t24HrAgo, t12HrAgo } = createTimeStampData();

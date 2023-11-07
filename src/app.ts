@@ -7,26 +7,17 @@ import { Liquid } from 'liquidjs';
 import yargs from 'yargs/yargs';
 import express from 'express';
 import cron from 'node-cron';
-import { DateTime } from 'luxon';
-
-const TIMESTAMP_HOUR = 10;
-const TIMESTAMP_MINUTE = 0;
-const HITS_LIMIT = 10000;
-const THROTTLE_TIME = 500;
-
-const DIST_DIR = 'public';
-const RSS_PATH = 'rss_feed.xml';
-const HOST_URL = 'https://example.com';
-const CRON_SCHEDULE = '30 8,20 * * *';
-const TIMEZONE = 'America/New_York';
-const PORT = 8080;
-
-const feedData = {
-	title: 'Hacker News RSS Feed',
-	description: 'HN Items with Comments',
-	feed_url: `${HOST_URL}/${RSS_PATH}}`,
-	site_url: 'https://news.ycombinator.com/',
-};
+import { createTimeStampData } from './timestamps';
+import {
+	THROTTLE_TIME,
+	HITS_LIMIT,
+	DIST_DIR,
+	RSS_PATH,
+	PORT,
+	CRON_SCHEDULE,
+	FEED_DATA,
+	TIMEZONE,
+} from './constants';
 
 interface AlgoliaSearchHit {
 	author: string;
@@ -76,43 +67,6 @@ const liquidEngine = new Liquid({
 	cache: true,
 	greedy: true,
 });
-
-export const createTimeStampData = () => {
-	const currentTime = DateTime.now().setZone(TIMEZONE).set({
-		minute: TIMESTAMP_MINUTE,
-		second: 0,
-		millisecond: 0,
-	});
-	let t24HrAgo: DateTime, t12HrAgo: DateTime;
-	if (currentTime.hour < 12) {
-		// Before noon
-		t24HrAgo = currentTime.minus({ days: 1 }).set({
-			hour: TIMESTAMP_HOUR,
-		});
-		t12HrAgo = currentTime.minus({ days: 1 }).set({
-			hour: TIMESTAMP_HOUR + 12,
-		});
-	} else {
-		t24HrAgo = currentTime.minus({ days: 1 }).set({
-			hour: TIMESTAMP_HOUR + 12,
-		});
-		t12HrAgo = currentTime.set({
-			hour: TIMESTAMP_HOUR,
-		});
-	}
-	const returnData = {
-		t24HrAgo: t24HrAgo.toSeconds(),
-		t12HrAgo: t12HrAgo.toSeconds(),
-	};
-	console.log('Created timestamp for:', returnData);
-	console.log(
-		'Timestamp will be from',
-		t24HrAgo.toString(),
-		'to',
-		t12HrAgo.toString()
-	);
-	return returnData;
-};
 
 const createAlgoliaSearchUrl = (start?: number, end?: number) => {
 	const { t12HrAgo, t24HrAgo } =
@@ -252,7 +206,7 @@ const createRSSFeed = async (start?: number, end?: number) => {
 	const searchAndCommentData = await fetchCommentData(searchData.hits);
 	if (!searchAndCommentData) return;
 	const processedData = processData(searchAndCommentData);
-	const feed = new RSS(feedData);
+	const feed = new RSS(FEED_DATA);
 	for (const hit of processedData) {
 		const desc = await templateHit(hit);
 		feed.item({
@@ -271,7 +225,7 @@ const createRSSFeed = async (start?: number, end?: number) => {
 };
 
 const createDummyRSSFeed = () => {
-	const feed = new RSS(feedData);
+	const feed = new RSS(FEED_DATA);
 	const xml = feed.xml({ indent: true });
 	writeFeedFile(xml);
 	console.log('Created dummy RSS feed');
