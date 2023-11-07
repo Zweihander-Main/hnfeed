@@ -18,48 +18,7 @@ import {
 	FEED_DATA,
 	TIMEZONE,
 } from './constants';
-
-interface AlgoliaSearchHit {
-	author: string;
-	children?: [number];
-	comment_text?: string;
-	created_at: string;
-	created_at_i: number;
-	num_comments: number;
-	objectID: string;
-	points: number;
-	story_text?: string;
-	title: string;
-	updated_at?: string;
-	url?: string;
-	_tags: string[];
-}
-
-interface AlgoliaSearchResponse {
-	hits: AlgoliaSearchHit[];
-	page: number;
-	nbHits: number;
-	nbPages: number;
-	hitsPerPage: number;
-}
-
-interface HNApiResponse {
-	by?: string;
-	dead?: boolean;
-	deleted?: boolean;
-	descendants?: number;
-	id: number;
-	kids?: number[];
-	parent?: number;
-	parts?: unknown[];
-	poll?: unknown;
-	score?: number;
-	text?: string;
-	time?: number;
-	title?: string;
-	type?: string;
-	url?: string;
-}
+import type { AlgoliaSearchResponse, AllDataHit, HNApiResponse } from './types';
 
 const liquidEngine = new Liquid({
 	root: path.resolve(__dirname, 'templates/'),
@@ -117,13 +76,6 @@ const fetchHNApiObjectData = async (objectID: string) => {
 		return null;
 	}
 };
-
-interface AllDataHit extends AlgoliaSearchHit {
-	c1L1?: HNApiResponse;
-	c2L1?: HNApiResponse;
-	c1L2?: HNApiResponse;
-	c2L2?: HNApiResponse;
-}
 
 const fetchCommentData = async (allData: Array<AllDataHit>) => {
 	for (let i = 0, len = allData.length; i < len; i++) {
