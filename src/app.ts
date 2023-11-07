@@ -78,35 +78,27 @@ const liquidEngine = new Liquid({
 });
 
 const createTimeStampData = () => {
-	const currentTime = DateTime.now().setZone(TIMEZONE);
+	const currentTime = DateTime.now().setZone(TIMEZONE).set({
+		minute: TIMESTAMP_MINUTE,
+		second: 0,
+		millisecond: 0,
+	});
 	let t24HrAgo = currentTime.minus({ hours: 24 });
 	let t12HrAgo = currentTime.minus({ hours: 12 });
 	if (currentTime.hour < 12) {
 		// Before noon
 		t24HrAgo = t24HrAgo.minus({ days: 1 }).set({
 			hour: TIMESTAMP_HOUR,
-			minute: TIMESTAMP_MINUTE,
-			second: 0,
-			millisecond: 0,
 		});
 		t12HrAgo = t12HrAgo.minus({ days: 1 }).set({
 			hour: TIMESTAMP_HOUR + 12,
-			minute: TIMESTAMP_MINUTE,
-			second: 0,
-			millisecond: 0,
 		});
 	} else {
 		t24HrAgo = t24HrAgo.minus({ days: 1 }).set({
 			hour: TIMESTAMP_HOUR + 12,
-			minute: TIMESTAMP_MINUTE,
-			second: 0,
-			millisecond: 0,
 		});
 		t12HrAgo = t12HrAgo.set({
 			hour: TIMESTAMP_HOUR,
-			minute: TIMESTAMP_MINUTE,
-			second: 0,
-			millisecond: 0,
 		});
 	}
 	const returnData = {
