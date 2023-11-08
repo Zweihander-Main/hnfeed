@@ -1,3 +1,6 @@
+export const COMMENT_PARENTS = 2;
+export const COMMENT_DEPTH = 2;
+
 export const TIMESTAMP_HOUR = 10;
 export const TIMESTAMP_MINUTE = 0;
 

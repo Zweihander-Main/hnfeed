@@ -32,32 +32,32 @@ const storyCommentsDataWithTwoKids: HNApiResponse = {
 	id: 5,
 };
 
-const mockC1L1Comment: HNApiResponse = {
+const mockP1D1Comment: HNApiResponse = {
 	kids: [12],
 	id: 11,
 };
 
-const mockC1L2Comment: HNApiResponse = {
+const mockP1D2Comment: HNApiResponse = {
 	kids: [13],
 	id: 12,
 };
 
-const mockC2L1Comment: HNApiResponse = {
+const mockP2D1Comment: HNApiResponse = {
 	kids: [22],
 	id: 21,
 };
 
-const mockC2L2Comment: HNApiResponse = {
+const mockP2D2Comment: HNApiResponse = {
 	kids: [],
 	id: 22,
 };
 
-const mockC1L1CommentWithNoKids: HNApiResponse = {
+const mockP1D1CommentWithNoKids: HNApiResponse = {
 	kids: [],
 	id: 41,
 };
 
-const mockC2L1CommentWithNoKids: HNApiResponse = {
+const mockP2D1CommentWithNoKids: HNApiResponse = {
 	kids: [],
 	id: 51,
 };
@@ -71,22 +71,22 @@ describe('fetchCommentData', () => {
 			fetchHNApiObjectData: jest.fn(),
 		}));
 		fetchHNApiObjectData.mockImplementation((input) => {
-			let result: HNApiResponse | null = null;
+			let result: HNApiResponse | undefined;
 			switch (input) {
 				case '1':
 					result = storyCommentsData;
 					break;
 				case '11':
-					result = mockC1L1Comment;
+					result = mockP1D1Comment;
 					break;
 				case '12':
-					result = mockC1L2Comment;
+					result = mockP1D2Comment;
 					break;
 				case '21':
-					result = mockC2L1Comment;
+					result = mockP2D1Comment;
 					break;
 				case '22':
-					result = mockC2L2Comment;
+					result = mockP2D2Comment;
 					break;
 				case '3':
 					result = storyCommentsDataWithNoKids;
@@ -95,16 +95,14 @@ describe('fetchCommentData', () => {
 					result = storyCommentsDataWithOneKids;
 					break;
 				case '41':
-					result = mockC1L1CommentWithNoKids;
+					result = mockP1D1CommentWithNoKids;
 					break;
 				case '5':
 					result = storyCommentsDataWithTwoKids;
 					break;
 				case '51':
-					result = mockC2L1CommentWithNoKids;
+					result = mockP2D1CommentWithNoKids;
 					break;
-				default:
-					result = null;
 			}
 			return Promise.resolve(result);
 		});
@@ -125,36 +123,36 @@ describe('fetchCommentData', () => {
 		const result = await fetch.addCommentsToStory([sampleDataHit]);
 
 		expect(fetch.fetchHNApiObjectData).toHaveBeenCalled();
-		expect(result && result[0].c1L1).toEqual(mockC1L1Comment);
-		expect(result && result[0].c1L2).toEqual(mockC1L2Comment);
-		expect(result && result[0].c2L1).toEqual(mockC2L1Comment);
-		expect(result && result[0].c2L2).toEqual(mockC2L2Comment);
+		expect(result && result[0].p1D1).toEqual(mockP1D1Comment);
+		expect(result && result[0].p1D2).toEqual(mockP1D2Comment);
+		expect(result && result[0].p2D1).toEqual(mockP2D1Comment);
+		expect(result && result[0].p2D2).toEqual(mockP2D2Comment);
 	});
 
 	it('should fetch expected comments with no children', async () => {
 		const result = await fetch.addCommentsToStory([
 			{ ...sampleDataHit, objectID: '3' },
 		]);
-		expect(result && result[0].c1L1).toEqual(undefined);
-		expect(result && result[0].c2L1).toEqual(undefined);
+		expect(result && result[0].p1D1).toEqual(undefined);
+		expect(result && result[0].p2D1).toEqual(undefined);
 	});
 
 	it('should fetch expected comments with one child', async () => {
 		const result = await fetch.addCommentsToStory([
 			{ ...sampleDataHit, objectID: '4' },
 		]);
-		expect(result && result[0].c1L1).toEqual(mockC1L1CommentWithNoKids);
-		expect(result && result[0].c1L2).toEqual(undefined);
-		expect(result && result[0].c2L1).toEqual(undefined);
+		expect(result && result[0].p1D1).toEqual(mockP1D1CommentWithNoKids);
+		expect(result && result[0].p1D2).toEqual(undefined);
+		expect(result && result[0].p2D1).toEqual(undefined);
 	});
 
 	it('should fetch expected comments with two first level children', async () => {
 		const result = await fetch.addCommentsToStory([
 			{ ...sampleDataHit, objectID: '5' },
 		]);
-		expect(result && result[0].c1L1).toEqual(mockC1L1CommentWithNoKids);
-		expect(result && result[0].c1L2).toEqual(undefined);
-		expect(result && result[0].c2L1).toEqual(mockC2L1CommentWithNoKids);
-		expect(result && result[0].c2L2).toEqual(undefined);
+		expect(result && result[0].p1D1).toEqual(mockP1D1CommentWithNoKids);
+		expect(result && result[0].p1D2).toEqual(undefined);
+		expect(result && result[0].p2D1).toEqual(mockP2D1CommentWithNoKids);
+		expect(result && result[0].p2D2).toEqual(undefined);
 	});
 });

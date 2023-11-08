@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { THROTTLE_TIME } from './constants';
+import { COMMENT_DEPTH, COMMENT_PARENTS, THROTTLE_TIME } from './constants';
 import {
 	AlgoliaSearchHit,
 	StoryWithComments,
@@ -24,35 +24,38 @@ export const fetchHNApiObjectData = async (objectID: string) => {
 		return response.data;
 	} catch (error) {
 		console.error(`Error fetching HN API data for ${objectID}:`, error);
-		return null;
+		return;
 	}
 };
 
+/**
+ * @param id id of the root story
+ *
+ * Note that returned object is in format p#d# where p is the parent comment
+ * and d is the depth of the comment. For example, p1d1 is the first comment
+ * on the root story, p2d1 is the first comment on the first comment on the
+ * root story, and so on.
+ */
 const fetchCommentDataForStory = async (id: string) => {
+	const comments: Comments = {};
 	const rootStory = await fetchHNApiObjectData(id);
-	if (!rootStory || !rootStory?.kids?.[0]) return {} as Comments;
+	if (!rootStory || !rootStory?.kids?.[0]) return comments;
 
-	const [comment1Level1, comment2Level1] = await Promise.all(
-		rootStory.kids
-			.slice(0, 2)
-			.map((kid) => fetchHNApiObjectData(kid.toString())) || []
-	);
+	for (let p = 1, len = COMMENT_PARENTS; p <= len; p++) {
+		const parentIdToFetch = rootStory.kids[p - 1]?.toString();
+		if (parentIdToFetch) {
+			comments[`p${p}D1`] = await fetchHNApiObjectData(parentIdToFetch);
+			for (let d = 2, len = COMMENT_DEPTH; d <= len; d++) {
+				const childIdToFetch =
+					comments[`p${p}D${d - 1}`]?.kids?.[0]?.toString();
+				if (childIdToFetch) {
+					comments[`p${p}D${d}`] =
+						await fetchHNApiObjectData(childIdToFetch);
+				}
+			}
+		}
+	}
 
-	const comment1Level2 =
-		comment1Level1 &&
-		comment1Level1?.kids?.[0] &&
-		(await fetchHNApiObjectData(comment1Level1.kids[0].toString()));
-	const comment2Level2 =
-		comment1Level1 &&
-		comment2Level1?.kids?.[0] &&
-		(await fetchHNApiObjectData(comment2Level1.kids[0].toString()));
-
-	const comments: Comments = {
-		c1L1: comment1Level1 || undefined,
-		c1L2: comment1Level2 || undefined,
-		c2L1: comment2Level1 || undefined,
-		c2L2: comment2Level2 || undefined,
-	};
 	return comments;
 };
 

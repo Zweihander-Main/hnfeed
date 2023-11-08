@@ -41,10 +41,7 @@ export interface HNApiResponse {
 }
 
 export interface Comments {
-	c1L1?: HNApiResponse;
-	c2L1?: HNApiResponse;
-	c1L2?: HNApiResponse;
-	c2L2?: HNApiResponse;
+	[key: `p${number}D${number}`]: HNApiResponse | undefined;
 }
 
 export type StoryWithComments = AlgoliaSearchHit & Comments;
