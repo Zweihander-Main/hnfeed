@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import RSS from 'rss';
-import { fetchCommentData } from './comments';
+import { addCommentsToStory } from './comments';
 import { fetchAlgoliaSearchData } from './stories';
-import { processData, templateHit } from './templating';
+import { processData, templateStory as templateStory } from './templating';
 import { DIST_DIR, RSS_PATH, FEED_DATA } from './constants';
 
 const writeFeedFile = (xml: string) => {
@@ -18,7 +18,7 @@ export const createRSSFeed = async (start?: number, end?: number) => {
 	const searchData = await fetchAlgoliaSearchData(start, end);
 	if (!searchData) return null;
 
-	const searchAndCommentData = await fetchCommentData(searchData.hits);
+	const searchAndCommentData = await addCommentsToStory(searchData.hits);
 	if (!searchAndCommentData || searchAndCommentData.length === 0) {
 		console.error('Error fetching comment data', searchAndCommentData);
 		return;
@@ -28,14 +28,14 @@ export const createRSSFeed = async (start?: number, end?: number) => {
 	console.log('Processed data, first sample: ', processedData[0]);
 
 	const feed = new RSS(FEED_DATA);
-	for (const hit of processedData) {
-		const desc = await templateHit(hit);
+	for (const story of processedData) {
+		const desc = await templateStory(story);
 		feed.item({
-			title: `${hit.points}p | ${hit.title}`,
+			title: `${story.points}p | ${story.title}`,
 			description: desc,
-			url: `https://news.ycombinator.com/item?id=${hit.objectID}`,
-			guid: hit.objectID,
-			date: hit.rssTime as string,
+			url: `https://news.ycombinator.com/item?id=${story.objectID}`,
+			guid: story.objectID,
+			date: story.rssTime as string,
 		});
 	}
 

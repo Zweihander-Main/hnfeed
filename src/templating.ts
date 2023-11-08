@@ -1,4 +1,4 @@
-import type { AllDataHit, ProcessedDataHit } from './types';
+import type { StoryWithComments, ProcessedStoryWithComments } from './types';
 import { DateTime } from 'luxon';
 import { Liquid } from 'liquidjs';
 import path from 'path';
@@ -10,24 +10,24 @@ const liquidEngine = new Liquid({
 	greedy: true,
 });
 
-export const processData = (data: Array<AllDataHit>) => {
-	const returnData: Array<ProcessedDataHit> = data.sort((a, b) => {
+export const processData = (data: Array<StoryWithComments>) => {
+	const returnData: Array<ProcessedStoryWithComments> = data.sort((a, b) => {
 		if (a.points > b.points) return -1;
 		if (a.points < b.points) return 1;
 		return 0;
 	});
 	const currTime = new Date();
-	returnData.map((hit) => {
-		const adjustedDate = new Date(currTime.getTime() - hit.points * 1000);
-		hit.rssTime = DateTime.fromJSDate(adjustedDate).toFormat(
+	returnData.map((story) => {
+		const adjustedDate = new Date(currTime.getTime() - story.points * 1000);
+		story.rssTime = DateTime.fromJSDate(adjustedDate).toFormat(
 			'EEE, dd MMM yyyy HH:mm:ss ZZ'
 		);
-		return hit;
+		return story;
 	});
 	return returnData;
 };
 
-export const templateHit = async (hit: ProcessedDataHit) => {
-	const output = (await liquidEngine.renderFile('rss', hit)) as string;
+export const templateStory = async (story: ProcessedStoryWithComments) => {
+	const output = (await liquidEngine.renderFile('rss', story)) as string;
 	return output.replace(/[\n\t]/g, '');
 };

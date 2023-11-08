@@ -40,13 +40,15 @@ export interface HNApiResponse {
 	url?: string;
 }
 
-export interface AllDataHit extends AlgoliaSearchHit {
+export interface Comments {
 	c1L1?: HNApiResponse;
 	c2L1?: HNApiResponse;
 	c1L2?: HNApiResponse;
 	c2L2?: HNApiResponse;
 }
 
-export interface ProcessedDataHit extends AllDataHit {
+export type StoryWithComments = AlgoliaSearchHit & Comments;
+
+export interface ProcessedStoryWithComments extends StoryWithComments {
 	rssTime?: string;
 }
