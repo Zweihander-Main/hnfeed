@@ -61,6 +61,5 @@ export const fetchCommentData = async (allData: Array<AllDataHit>) => {
 			}
 		}
 	}
-	console.log(allData);
 	return allData;
 };
