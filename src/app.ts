@@ -1,4 +1,3 @@
-import axios from 'axios';
 import moment from 'moment';
 import RSS from 'rss';
 import fs from 'fs';
@@ -7,10 +6,9 @@ import { Liquid } from 'liquidjs';
 import yargs from 'yargs/yargs';
 import express from 'express';
 import cron from 'node-cron';
-import { createTimeStampData } from './timestamps';
+import { fetchCommentData } from './comments';
+import { fetchAlgoliaSearchData } from './stories';
 import {
-	THROTTLE_TIME,
-	HITS_LIMIT,
 	DIST_DIR,
 	RSS_PATH,
 	PORT,
@@ -18,7 +16,7 @@ import {
 	FEED_DATA,
 	TIMEZONE,
 } from './constants';
-import type { AlgoliaSearchResponse, AllDataHit, HNApiResponse } from './types';
+import type { AllDataHit, ProcessedDataHit } from './types';
 
 const liquidEngine = new Liquid({
 	root: path.resolve(__dirname, 'templates/'),
@@ -26,101 +24,6 @@ const liquidEngine = new Liquid({
 	cache: true,
 	greedy: true,
 });
-
-const createAlgoliaSearchUrl = (start?: number, end?: number) => {
-	const { t12HrAgo, t24HrAgo } =
-		start && end
-			? { t24HrAgo: start, t12HrAgo: end }
-			: createTimeStampData();
-	return `https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i%3E${t24HrAgo},created_at_i%3C${t12HrAgo},points%3E12&hitsPerPage=${HITS_LIMIT}`;
-};
-
-const validateAlgoliaSearchResponse = (response: AlgoliaSearchResponse) => {
-	if (response.hits.length === 0) {
-		throw new Error('Validation error: No results found');
-	}
-};
-
-const fetchAlgoliaSearchData = async (start?: number, end?: number) => {
-	try {
-		const url = createAlgoliaSearchUrl(start, end);
-		console.log('Fetching Algolia Search data', url);
-		const response = await axios.get<AlgoliaSearchResponse>(url, {
-			validateStatus: (status) => status < 500,
-		});
-		validateAlgoliaSearchResponse(response.data);
-		return response.data;
-	} catch (error) {
-		console.error('Error fetching Algolia Search data:', error);
-		return null;
-	}
-};
-
-const createHNApiUrl = (objectID: string) => {
-	return `https://hacker-news.firebaseio.com/v0/item/${objectID}.json`;
-};
-
-const fetchHNApiObjectData = async (objectID: string) => {
-	try {
-		await new Promise((resolve) => setTimeout(resolve, THROTTLE_TIME));
-		console.log('Fetching HN API data', objectID);
-		const response = await axios.get<HNApiResponse>(
-			createHNApiUrl(objectID),
-			{
-				validateStatus: (status) => status < 500,
-			}
-		);
-		return response.data;
-	} catch (error) {
-		console.error(`Error fetching HN API data for ${objectID}:`, error);
-		return null;
-	}
-};
-
-const fetchCommentData = async (allData: Array<AllDataHit>) => {
-	for (let i = 0, len = allData.length; i < len; i++) {
-		const hit = allData[i];
-		const storyCommentsData = await fetchHNApiObjectData(hit.objectID);
-		if (!storyCommentsData) return null;
-		const parentKids = storyCommentsData.kids;
-		if (!parentKids || parentKids.length === 0) return allData;
-		const comment1Level1 = await fetchHNApiObjectData(
-			parentKids[0].toString()
-		);
-		if (comment1Level1) {
-			allData[i].c1L1 = comment1Level1;
-			if (comment1Level1.kids && comment1Level1.kids[0]) {
-				const comment1Level2 = await fetchHNApiObjectData(
-					comment1Level1.kids[0].toString()
-				);
-				if (comment1Level2) {
-					allData[i].c1L2 = comment1Level2;
-				}
-			}
-		}
-		if (parentKids[1]) {
-			const comment2Level1 = await fetchHNApiObjectData(
-				parentKids[1].toString()
-			);
-			if (comment2Level1) {
-				allData[i].c2L1 = comment2Level1;
-				if (comment2Level1.kids && comment2Level1.kids[0]) {
-					const comment2Level2 = await fetchHNApiObjectData(
-						comment2Level1.kids[0].toString()
-					);
-					if (comment2Level2) {
-						allData[i].c2L2 = comment2Level2;
-					}
-				}
-			}
-		}
-	}
-	return null;
-};
-
-interface ProcessedDataHit extends AllDataHit {
-	rssTime?: string;
-}
 
 const processData = (data: Array<AllDataHit>) => {
 	const returnData: Array<ProcessedDataHit> = data.sort((a, b) => {

@@ -46,3 +46,7 @@ export interface AllDataHit extends AlgoliaSearchHit {
 	c1L2?: HNApiResponse;
 	c2L2?: HNApiResponse;
 }
+
+export interface ProcessedDataHit extends AllDataHit {
+	rssTime?: string;
+}
