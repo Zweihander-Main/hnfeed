@@ -6,7 +6,8 @@
 		"arrowParens",
 		"healthcheck",
 		"zweizs",
-		"buildx"
+		"buildx",
+		"luxon"
 	],
 	"editor.formatOnSave": true,
 	"files.exclude": {

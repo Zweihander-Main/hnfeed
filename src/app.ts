@@ -1,4 +1,3 @@
-import moment from 'moment';
 import RSS from 'rss';
 import fs from 'fs';
 import path from 'path';
@@ -17,6 +16,7 @@ import {
 	TIMEZONE,
 } from './constants';
 import type { AllDataHit, ProcessedDataHit } from './types';
+import { DateTime } from 'luxon';
 
 const liquidEngine = new Liquid({
 	root: path.resolve(__dirname, 'templates/'),
@@ -34,8 +34,8 @@ const processData = (data: Array<AllDataHit>) => {
 	const currTime = new Date();
 	returnData.map((hit) => {
 		const adjustedDate = new Date(currTime.getTime() - hit.points * 1000);
-		hit.rssTime = moment(adjustedDate).format(
-			'ddd, DD MMM YYYY HH:mm:ss ZZ'
+		hit.rssTime = DateTime.fromJSDate(adjustedDate).toFormat(
+			'EEE, dd MMM yyyy HH:mm:ss ZZ'
 		);
 		return hit;
 	});
