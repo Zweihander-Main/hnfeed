@@ -29,39 +29,30 @@ export const fetchHNApiObjectData = async (objectID: string) => {
 };
 
 const fetchCommentDataForStory = async (id: string) => {
-	const comments: Comments = {};
 	const rootStory = await fetchHNApiObjectData(id);
-	if (!rootStory) return comments;
-	const rootKids = rootStory.kids;
-	if (!rootKids || rootKids.length === 0) return comments;
-	const comment1Level1 = await fetchHNApiObjectData(rootKids[0].toString());
-	if (comment1Level1) {
-		comments.c1L1 = comment1Level1;
-		if (comment1Level1.kids && comment1Level1.kids[0]) {
-			const comment1Level2 = await fetchHNApiObjectData(
-				comment1Level1.kids[0].toString()
-			);
-			if (comment1Level2) {
-				comments.c1L2 = comment1Level2;
-			}
-		}
-	}
-	if (rootKids[1]) {
-		const comment2Level1 = await fetchHNApiObjectData(
-			rootKids[1].toString()
-		);
-		if (comment2Level1) {
-			comments.c2L1 = comment2Level1;
-			if (comment2Level1.kids && comment2Level1.kids[0]) {
-				const comment2Level2 = await fetchHNApiObjectData(
-					comment2Level1.kids[0].toString()
-				);
-				if (comment2Level2) {
-					comments.c2L2 = comment2Level2;
-				}
-			}
-		}
-	}
+	if (!rootStory || !rootStory?.kids?.[0]) return {} as Comments;
+
+	const [comment1Level1, comment2Level1] = await Promise.all(
+		rootStory.kids
+			.slice(0, 2)
+			.map((kid) => fetchHNApiObjectData(kid.toString())) || []
+	);
+
+	const comment1Level2 =
+		comment1Level1 &&
+		comment1Level1?.kids?.[0] &&
+		(await fetchHNApiObjectData(comment1Level1.kids[0].toString()));
+	const comment2Level2 =
+		comment1Level1 &&
+		comment2Level1?.kids?.[0] &&
+		(await fetchHNApiObjectData(comment2Level1.kids[0].toString()));
+
+	const comments: Comments = {
+		c1L1: comment1Level1 || undefined,
+		c1L2: comment1Level2 || undefined,
+		c2L1: comment2Level1 || undefined,
+		c2L2: comment2Level2 || undefined,
+	};
 	return comments;
 };
 
