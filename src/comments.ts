@@ -6,7 +6,7 @@ const createHNApiUrl = (objectID: string) => {
 	return `https://hacker-news.firebaseio.com/v0/item/${objectID}.json`;
 };
 
-const fetchHNApiObjectData = async (objectID: string) => {
+export const fetchHNApiObjectData = async (objectID: string) => {
 	try {
 		await new Promise((resolve) => setTimeout(resolve, THROTTLE_TIME));
 		console.log('Fetching HN API data', objectID);
@@ -61,5 +61,6 @@ export const fetchCommentData = async (allData: Array<AllDataHit>) => {
 			}
 		}
 	}
-	return null;
+	console.log(allData);
+	return allData;
 };
