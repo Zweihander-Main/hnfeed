@@ -48,7 +48,7 @@ const templateHit = async (hit: ProcessedDataHit) => {
 };
 
 const writeFeedFile = (xml: string) => {
-	console.log('Writing RSS feed file, starts with:', xml.slice(0, 100));
+	console.log('Writing RSS feed file, starts with:', xml.slice(100, 200));
 	if (!fs.existsSync(DIST_DIR)) {
 		fs.mkdirSync(DIST_DIR, { recursive: true });
 	}
