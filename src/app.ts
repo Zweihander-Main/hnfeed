@@ -4,7 +4,7 @@ import yargs from 'yargs/yargs';
 import express from 'express';
 import cron from 'node-cron';
 import { DIST_DIR, RSS_PATH, PORT, CRON_SCHEDULE, TIMEZONE } from './constants';
-import { createDummyRSSFeed, createRSSFeed } from './rss';
+import { createDummyRSSFeed, createRSSFeed } from './feed';
 
 const yargsParser = yargs(process.argv.slice(2)).options({
 	start: { type: 'number', default: null, alias: 's' },
@@ -22,11 +22,9 @@ const yargsParser = yargs(process.argv.slice(2)).options({
 			CRON_SCHEDULE,
 			() => {
 				console.log('Running cron job');
-				try {
-					void createRSSFeed();
-				} catch (error) {
-					console.error('Error running cron job:', error);
-				}
+				createRSSFeed().catch((error) => {
+					console.error('Error creating RSS feed:', error);
+				});
 			},
 			{
 				scheduled: true,
