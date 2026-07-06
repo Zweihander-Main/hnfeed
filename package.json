@@ -4,9 +4,10 @@
 	"description": "",
 	"main": "",
 	"scripts": {
-		"start": "ts-node src/app.ts",
-		"healthcheck": "ts-node src/healthcheck.ts",
-		"test": "jest"
+		"start": "node --import=tsx src/app.ts",
+		"healthcheck": "node --import=tsx src/healthcheck.ts",
+		"test": "jest",
+		"typecheck": "tsc --noEmit -p tsconfig.test.json"
 	},
 	"engines": {
 		"node": ">=16.0.0"
@@ -26,8 +27,8 @@
 		"luxon": "^3.4.3",
 		"node-cron": "^3.0.2",
 		"rss": "^1.2.2",
-		"ts-node": "^10.9.1",
 		"tslib": "^2.6.2",
+		"tsx": "^4.23.0",
 		"yargs": "^17.7.2"
 	},
 	"devDependencies": {
