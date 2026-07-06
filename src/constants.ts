@@ -6,6 +6,7 @@ export const TIMESTAMP_MINUTE = 0;
 
 export const HITS_LIMIT = 10000;
 export const THROTTLE_TIME = 500;
+export const POINTS_LIMIT = 12;
 
 export const DIST_DIR = 'public';
 export const RSS_PATH = 'rss_feed.xml';
