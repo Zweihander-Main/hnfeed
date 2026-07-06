@@ -11,7 +11,7 @@ name: Publish zweizs/hnfeed
 
 jobs:
     build-container:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
